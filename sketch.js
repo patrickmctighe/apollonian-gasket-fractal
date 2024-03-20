@@ -19,7 +19,7 @@ function draw(){
   c3.show();
 
   let k4 = descartes(c1, c2, c3)
-  let r4 = abs(1/k4)
+  let r4 = abs(1/k4[0])
   circle(mouseX,mouseY, r4*2);
 }
 
