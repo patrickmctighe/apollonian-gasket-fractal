@@ -1,19 +1,65 @@
 
 let allCircles=[];
 let queue = [];
+let epsilon = 0.1;
 function setup() {
-  createCanvas(400, 400);
+  createCanvas(800, 800);
 
-  let c1 = new Circle(-1/200, 200, 200);
-  let c2 = new Circle(1/100, 100, 200);
- let c3 = new Circle(1/100, 300, 200);
+  let c1 = new Circle(-1/(width/3), width/2, height/2);
+let r2 = random(100, c1.radius /2)
+
+let v = p5.Vector.fromAngle(random(TWO_PI));
+v.setMag(c1.radius-r2);
+
+  let c2 = new Circle(1/r2, width/2 + v.x, height/2 + v.y);
+
+  let r3 = v.mag();
+  v.rotate(PI);
+v.setMag(c1.radius-r3);
+
+ let c3 = new Circle(1/r3, width/2+v.x, height/2+v.y);
  allCircles=[c1, c2, c3];
  queue = [[c1, c2, c3]];
   
 
 }
 
-function mousePressed(){
+function validate(c4,c1, c2, c3){
+  console.log("validate");
+  if(c4.radius <2) return false;
+  for(let other of allCircles){
+    let d = c4.dist(other);
+    let radiusDiff = abs(c4.radius - other.radius);
+    if(d < epsilon && radiusDiff < epsilon){
+         console.log("too close");
+      return false;
+   
+    }
+  }
+
+  if(!isTangent(c4,c1)) return false;
+  if(!isTangent(c4,c2)) return false;
+  if(!isTangent(c4,c3)) return false;
+
+
+  console.log("valid");
+  return true;
+
+}
+
+function isTangent(c1,c2){
+let d = c1.dist(c2);
+let r1 = c1.radius;
+let r2 = c2.radius;
+
+let a = d - (r1 + r2) < epsilon ;
+let b = d - abs(r2 - r1 ) < epsilon;
+
+return a || b; 
+ }
+
+function nextGeneration(){
+  console.log("mouse pressed");
   let nextQueue = [];
   for (let triplet of queue){
     let [c1,c2,c3] = triplet;
@@ -22,7 +68,7 @@ function mousePressed(){
     let newCircles = complexDescartes(c1, c2, c3, k4);
 
     for (let newCircle of newCircles){
-      if(newCircle.radius > 10){  
+      if(validate(newCircle, c1, c2, c3)){  
       allCircles.push(newCircle);
     let t1 = [c1, c2, newCircle];
     let t2 = [c1, c3, newCircle];
@@ -36,7 +82,7 @@ function mousePressed(){
 
 function draw(){
   background(255);
-
+nextGeneration();
   for(let c of allCircles){
     c.show();
   }
@@ -94,7 +140,8 @@ function descartes(c1, c2, c3){
   let k3 = c3.bend;
 
   let sum = k1 + k2 + k3;
-  let root = 2*sqrt(k1 * k2 + k2 * k3 + k1 * k3);
+  let product = abs(k1 * k2 + k2 * k3 + k1 * k3);
+  let root = 2*sqrt(product);
 
   return [sum + root, sum - root ]
 }
