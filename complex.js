@@ -22,8 +22,8 @@ class Complex{
     }
 
     sqrt(){
-        let m = sqrt(a*a + b*b);
-        let angle = atan2(b, a);
+        let m = sqrt(this.a*this.a + this.b*this.b);
+        let angle = atan2(this.b, this.a);
         m= sqrt(m);
         angle = angle/2;
         return new Complex(m * cos(angle), m * sin(angle));
